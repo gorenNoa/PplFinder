@@ -18,3 +18,23 @@ export const usePeopleFetch = () => {
 
   return { users, isLoading, fetchUsers };
 };
+
+export const usePeopleFetchFromCountry = (value) => {
+  console.log(value);
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchUsers(value);
+  }, []);
+
+  async function fetchUsersByCountry(value) {
+    setIsLoading(true);
+    console.log(value);
+    const response = await axios.get(`https://randomuser.me/api/?nat=${value}`);
+    setIsLoading(false);
+    setUsers(response.data.results);
+  }
+
+  return { users, isLoading, fetchUsersByCountry };
+};

@@ -24,6 +24,7 @@ const UserList = ({ users, isLoading }) => {
         <CheckBox value="AU" label="Australia" />
         <CheckBox value="CA" label="Canada" />
         <CheckBox value="DE" label="Germany" />
+        <CheckBox value="GB" label="United Kingdom" />
       </S.Filters>
       <S.List>
         {users.map((user, index) => {
