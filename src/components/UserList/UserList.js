@@ -23,7 +23,7 @@ const UserList = ({ users, isLoading }) => {
   };
 
   useEffect(() => {
-    console.log(countriesList)
+    // console.log(countriesList)
       axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${countriesList}`)
       .then((response) => {
         // console.log(response.data.results);
@@ -32,7 +32,7 @@ const UserList = ({ users, isLoading }) => {
     }, [countriesList]);
 
 
-  const getUsersFromOneCountry = (value) => {
+  const getUsersFromGivenCountry = (value) => {
     // if need to add the country
     if(!countriesList.includes(value)){
       setCountriesList([...countriesList, value])
@@ -42,22 +42,21 @@ const UserList = ({ users, isLoading }) => {
       const newCountries = countriesList.filter(country => country !== value)
       setCountriesList(newCountries)
     }
-
   };
 
 
   return (
-    usersList && 
+    
     <S.UserList>
       <S.Filters>
-        <CheckBox value="BR" label="Brazil" onChange={getUsersFromOneCountry}/>
-        <CheckBox value="AU" label="Australia" />
-        <CheckBox value="CA" label="Canada" />
-        <CheckBox value="DE" label="Germany" />
-        <CheckBox value="GB" label="United Kingdom" />
+        <CheckBox value="BR" label="Brazil" onChange={getUsersFromGivenCountry}/>
+        <CheckBox value="AU" label="Australia" onChange={getUsersFromGivenCountry}/>
+        <CheckBox value="CA" label="Canada" onChange={getUsersFromGivenCountry}/>
+        <CheckBox value="DE" label="Germany" onChange={getUsersFromGivenCountry}/>
+        <CheckBox value="GB" label="United Kingdom" onChange={getUsersFromGivenCountry}/>
       </S.Filters>
       <S.List>
-        {users.map((user, index) => {
+        {usersList.map((user, index) => {
           return (
             <S.User
               key={index}
