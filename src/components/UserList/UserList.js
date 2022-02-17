@@ -7,10 +7,12 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 import axios from "axios";
 
-const countries = [];
-
 const UserList = ({ users, isLoading }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
+  const [usersList, setUsersList] = useState([]);
+  const [countriesList, setCountriesList] = useState([]);
+
+
 
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
@@ -20,30 +22,32 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
-  function getUsersFromOneCountry(value){
-    const [users, setUsers] = useState([]);
-    console.log(value);
-    useEffect(() => {
-      axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${value}`)
+  useEffect(() => {
+    console.log(countriesList)
+      axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${countriesList}`)
       .then((response) => {
-        setUsers(response.data.results);
+        // console.log(response.data.results);
+        setUsersList(response.data.results);
       });
-    }, [countries]);
-  };
-  const usersByCountry = (value) => {
-    if(countries.includes(value)){
-      countries.reduce(value);
+    }, [countriesList]);
+
+
+  const getUsersFromOneCountry = (value) => {
+    // if need to add the country
+    if(!countriesList.includes(value)){
+      setCountriesList([...countriesList, value])
     }
-    countries.push(value);
-    console.log(countries);
-    // useEffect(() => {
-    //   console.log("OK");
-    // }, [country])
-    // const response = axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${value}`);
-    // console.log(response.data.results);
+    // if the country already exist and pressed again - neet to delete it
+    else{
+      const newCountries = countriesList.filter(country => country !== value)
+      setCountriesList(newCountries)
+    }
+
   };
 
+
   return (
+    usersList && 
     <S.UserList>
       <S.Filters>
         <CheckBox value="BR" label="Brazil" onChange={getUsersFromOneCountry}/>
