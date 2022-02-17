@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import Text from "components/Text";
 import Spinner from "components/Spinner";
 import CheckBox from "components/CheckBox";
@@ -11,6 +11,13 @@ const UserList = ({ users, isLoading }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
   const [usersList, setUsersList] = useState([]);
   const [countriesList, setCountriesList] = useState([]);
+  const [favoriteUsersList, setFavoriteUsersList] = useState(() => {
+    if(localStorage.getItem("favoriteUsers")){
+      return JSON.parse(localStorage.getItem("favoriteUsers"));
+    }
+    // if there are no saved users
+    return [];
+  });
 
 
 
@@ -37,16 +44,43 @@ const UserList = ({ users, isLoading }) => {
     if(!countriesList.includes(value)){
       setCountriesList([...countriesList, value])
     }
-    // if the country already exist and pressed again - neet to delete it
+    // if the country already exist and pressed again - need to delete it
     else{
       const newCountries = countriesList.filter(country => country !== value)
       setCountriesList(newCountries)
     }
   };
 
+  const isUserInFavorite = (userToCheck) =>{
+    if(userToCheck !== null){
+      return favoriteUsersList.find(user => user.login.uuid === userToCheck.login.uuid);
+    }
+  };
+  // const loadFavoriteUsers = () => {
+  //   if(localStorage.getItem("favoriteUsers")){
+  //     return JSON.parse(localStorage.getItem("favoriteUsers"));
+  //   }
+  //   // if there are no saved users
+  //   return [];
+  // };
+
+  const addToFavorites = (userToAdd) => {
+    var newFavoriteList;
+    if(!favoriteUsersList.includes(userToAdd)){
+      newFavoriteList = [...favoriteUsersList, userToAdd]
+      // setFavoriteUsersList([...favoriteUsersList, userToAdd])
+    }
+    else{
+      // const newFavoriteList = favoriteUsersList.filter(user => user.login.uuid !== userToAdd.login.uuid)
+      newFavoriteList = favoriteUsersList.filter(user => user.login.uuid !== userToAdd.login.uuid)
+      // setFavoriteUsersList(newFavoriteList)
+    }
+    setFavoriteUsersList(newFavoriteList)
+    localStorage.setItem("favoriteUsers", JSON.stringify(newFavoriteList));
+  };
 
   return (
-    
+    users && (
     <S.UserList>
       <S.Filters>
         <CheckBox value="BR" label="Brazil" onChange={getUsersFromGivenCountry}/>
@@ -76,8 +110,8 @@ const UserList = ({ users, isLoading }) => {
                   {user?.location.city} {user?.location.country}
                 </Text>
               </S.UserInfo>
-              <S.IconButtonWrapper isVisible={index === hoveredUserId}>
-                <IconButton>
+              <S.IconButtonWrapper isVisible={index === hoveredUserId || isUserInFavorite(user)}>
+                <IconButton onClick={() => addToFavorites(user)}>
                   <FavoriteIcon color="error" />
                 </IconButton>
               </S.IconButtonWrapper>
@@ -90,7 +124,7 @@ const UserList = ({ users, isLoading }) => {
           </S.SpinnerWrapper>
         )}
       </S.List>
-    </S.UserList>
+    </S.UserList>)
   );
 };
 
