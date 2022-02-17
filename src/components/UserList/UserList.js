@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useReducer } from "react";
 import Text from "components/Text";
 import Spinner from "components/Spinner";
 import CheckBox from "components/CheckBox";
 import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
+import axios from "axios";
+
+const countries = [];
 
 const UserList = ({ users, isLoading }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
@@ -17,16 +20,33 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
-  const usersByCountry = (value) => {
-    console.log("hereee");
+  function getUsersFromOneCountry(value){
+    const [users, setUsers] = useState([]);
     console.log(value);
-    console.log("hhsrfhsrthrt")
+    useEffect(() => {
+      axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${value}`)
+      .then((response) => {
+        setUsers(response.data.results);
+      });
+    }, [countries]);
+  };
+  const usersByCountry = (value) => {
+    if(countries.includes(value)){
+      countries.reduce(value);
+    }
+    countries.push(value);
+    console.log(countries);
+    // useEffect(() => {
+    //   console.log("OK");
+    // }, [country])
+    // const response = axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${value}`);
+    // console.log(response.data.results);
   };
 
   return (
     <S.UserList>
       <S.Filters>
-        <CheckBox value="BR" label="Brazil" onChange={usersByCountry}/>
+        <CheckBox value="BR" label="Brazil" onChange={getUsersFromOneCountry}/>
         <CheckBox value="AU" label="Australia" />
         <CheckBox value="CA" label="Canada" />
         <CheckBox value="DE" label="Germany" />
