@@ -11,6 +11,7 @@ const UserList = ({ users, isLoading }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
   const [usersList, setUsersList] = useState([]);
   const [countriesList, setCountriesList] = useState([]);
+  // const LOCAL_STORAGE_KEY = "favoriteUsers";
   const [favoriteUsersList, setFavoriteUsersList] = useState(() => {
     if(localStorage.getItem("favoriteUsers")){
       return JSON.parse(localStorage.getItem("favoriteUsers"));
@@ -18,8 +19,7 @@ const UserList = ({ users, isLoading }) => {
     // if there are no saved users
     return [];
   });
-
-
+  
 
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
@@ -51,6 +51,10 @@ const UserList = ({ users, isLoading }) => {
     }
   };
 
+  /*
+    This function check if a given user is in the favorite list.
+    In case the return answer is true - the favorite icon is visible
+  */
   const isUserInFavorite = (userToCheck) =>{
     if(userToCheck !== null){
       return favoriteUsersList.find(user => user.login.uuid === userToCheck.login.uuid);
@@ -68,12 +72,9 @@ const UserList = ({ users, isLoading }) => {
     var newFavoriteList;
     if(!favoriteUsersList.includes(userToAdd)){
       newFavoriteList = [...favoriteUsersList, userToAdd]
-      // setFavoriteUsersList([...favoriteUsersList, userToAdd])
     }
     else{
-      // const newFavoriteList = favoriteUsersList.filter(user => user.login.uuid !== userToAdd.login.uuid)
       newFavoriteList = favoriteUsersList.filter(user => user.login.uuid !== userToAdd.login.uuid)
-      // setFavoriteUsersList(newFavoriteList)
     }
     setFavoriteUsersList(newFavoriteList)
     localStorage.setItem("favoriteUsers", JSON.stringify(newFavoriteList));
@@ -102,9 +103,9 @@ const UserList = ({ users, isLoading }) => {
                 <Text size="22px" bold>
                   {user?.name.title} {user?.name.first} {user?.name.last}
                 </Text>
-                <Text size="14px">{user?.email}</Text>
+                <Text size="14px">{user?.gender}</Text>
                 <Text size="14px">
-                  {user?.location.street.number} {user?.location.street.name}
+                  {user?.dob.age}
                 </Text>
                 <Text size="14px">
                   {user?.location.city} {user?.location.country}
