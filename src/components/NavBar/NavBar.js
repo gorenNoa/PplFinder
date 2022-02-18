@@ -2,6 +2,10 @@ import React, { useState } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
+import { useHistory } from "react-router-dom";
+import Home from "pages/Home/Home";
+import Favorites from "pages/Favorites/Favorites";
+
 
 const NavBar = () => {
   const [value, setValue] = useState(0);
@@ -10,6 +14,7 @@ const NavBar = () => {
     setValue(newValue);
   };
 
+  const history = useHistory();
   return (
     <AppBar position="static" color="transparent" style={{ position: "fixed", top: 0 }}>
       <Tabs
@@ -19,9 +24,11 @@ const NavBar = () => {
         indicatorColor="primary"
         textColor="primary"
       >
-        <Tab label="Home" index={0} />
-        <Tab label="Favorites" index={1} />
+        <Tab label="Home" index={0} onClick={() => {history.push('/')}}/>
+        <Tab label="Favorites" index={1} onClick={() => { history.push('/favorites')}}/>
       </Tabs>
+      {/* {value === 0 && <Home />}
+      {value === 1 && <Favorites />} */}
     </AppBar>
   );
 };

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Home = styled.div`
+export const Favorites = styled.div`
   display: flex;
   height: 100vh;
   align-items: center;

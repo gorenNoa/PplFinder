@@ -8,16 +8,16 @@ const Favorites = () => {
   const { users, isLoading } = usePeopleFetch();
 
   return (
-    <S.Home>
+    <S.Favorites>
       <S.Content>
         <S.Header>
           <Text size="64px" bold>
-            PplFinder
+            Favorite Users Page
           </Text>
         </S.Header>
         <UserList users={users} isLoading={isLoading} />
       </S.Content>
-    </S.Home>
+    </S.Favorites>
   );
 };
 
