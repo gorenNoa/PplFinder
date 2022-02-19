@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useLayoutEffect } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Text from "components/Text";
 import Spinner from "components/Spinner";
 import CheckBox from "components/CheckBox";
@@ -7,7 +7,7 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 import axios from "axios";
 
-const UserList = ({ users, isLoading }) => {
+const UserList = ({ users, isLoading, setPageNumber }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
   const [usersList, setUsersList] = useState([]);
   const [countriesList, setCountriesList] = useState([]);
@@ -19,6 +19,27 @@ const UserList = ({ users, isLoading }) => {
     // if there are no saved users
     return [];
   });
+  // const [pageNumber, setPageNumber] = useState(1);
+  const observer = useRef();
+  const lastUserElementRef = useCallback( node => {
+    if(isLoading){
+      return;
+    }
+    // if we have observer (what we have in this iteration) - need to disconnect to get new
+    if(observer.current){
+      observer.current.disconnect();
+    }
+    // update the observer
+    observer.current = new IntersectionObserver(entries  => {
+      if(entries[0].isIntersecting){
+        setPageNumber(prevPageNumber => prevPageNumber + 1);
+      }
+    })
+    // if this is the last element
+    if(node){
+      observer.current.observe(node);
+    }
+  }, [isLoading]);
   
 
   const handleMouseEnter = (index) => {
@@ -29,14 +50,18 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
+  // if there is change in the countriesList - update the userList
   useEffect(() => {
-    // console.log(countriesList)
       axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${countriesList}`)
       .then((response) => {
-        // console.log(response.data.results);
         setUsersList(response.data.results);
       });
     }, [countriesList]);
+    
+  // if there is change in the users (from usePeopleFetch) update the userList
+  useEffect(() => {
+    setUsersList([...usersList, ...users])
+    }, [users]);
 
 
   const getUsersFromGivenCountry = (value) => {
@@ -92,32 +117,67 @@ const UserList = ({ users, isLoading }) => {
       </S.Filters>
       <S.List>
         {usersList.map((user, index) => {
-          return (
-            <S.User
-              key={index}
-              onMouseEnter={() => handleMouseEnter(index)}
-              onMouseLeave={handleMouseLeave}
-            >
-              <S.UserPicture src={user?.picture.large} alt="" />
-              <S.UserInfo>
-                <Text size="22px" bold>
-                  {user?.name.title} {user?.name.first} {user?.name.last}
-                </Text>
-                <Text size="14px">{user?.gender}</Text>
-                <Text size="14px">
-                  {user?.dob.age}
-                </Text>
-                <Text size="14px">
-                  {user?.location.city} {user?.location.country}
-                </Text>
-              </S.UserInfo>
-              <S.IconButtonWrapper isVisible={index === hoveredUserId || isUserInFavorite(user)}>
-                <IconButton onClick={() => addToFavorites(user)}>
-                  <FavoriteIcon color="error" />
-                </IconButton>
-              </S.IconButtonWrapper>
-            </S.User>
-          );
+          // if its the last user in scrolling - return ref to the last user shown
+          // if(users.length === index + 1){
+            {console.log(usersList.length)}
+            return (
+              <S.User
+                ref={usersList.length === index + 1 ? lastUserElementRef : null}
+                key={index}
+                onMouseEnter={() => handleMouseEnter(index)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <S.UserPicture src={user?.picture.large} alt="" />
+                <S.UserInfo>
+                  <Text size="22px" bold>
+                    {user?.name.title} {user?.name.first} {user?.name.last}
+                  </Text>
+                  <Text size="14px">{user?.gender}</Text>
+                  <Text size="14px">
+                    {user?.dob.age}
+                  </Text>
+                  <Text size="14px">
+                    {user?.location.city} {user?.location.country}
+                  </Text>
+                </S.UserInfo>
+                <S.IconButtonWrapper isVisible={index === hoveredUserId || isUserInFavorite(user)}>
+                  <IconButton onClick={() => addToFavorites(user)}>
+                    <FavoriteIcon color="error" />
+                  </IconButton>
+                </S.IconButtonWrapper>
+              </S.User>
+            );
+
+          // }
+          // else{
+          //   return (
+          //     <S.User
+          //       key={index}
+          //       onMouseEnter={() => handleMouseEnter(index)}
+          //       onMouseLeave={handleMouseLeave}
+          //     >
+          //       <S.UserPicture src={user?.picture.large} alt="" />
+          //       <S.UserInfo>
+          //         <Text size="22px" bold>
+          //           {user?.name.title} {user?.name.first} {user?.name.last}
+          //         </Text>
+          //         <Text size="14px">{user?.gender}</Text>
+          //         <Text size="14px">
+          //           {user?.dob.age}
+          //         </Text>
+          //         <Text size="14px">
+          //           {user?.location.city} {user?.location.country}
+          //         </Text>
+          //       </S.UserInfo>
+          //       <S.IconButtonWrapper isVisible={index === hoveredUserId || isUserInFavorite(user)}>
+          //         <IconButton onClick={() => addToFavorites(user)}>
+          //           <FavoriteIcon color="error" />
+          //         </IconButton>
+          //       </S.IconButtonWrapper>
+          //     </S.User>
+          //   );
+          // }
+
         })}
         {isLoading && (
           <S.SpinnerWrapper>

@@ -34,7 +34,6 @@
           <S.Header>
             <Text size="64px" bold>
               Favorite Users Page
-              {console.log(favoriteUsersList)}
             </Text>
           </S.Header>
           {/* <UserList users={users} isLoading={isLoading} /> */}
