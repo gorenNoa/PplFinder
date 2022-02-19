@@ -12,10 +12,8 @@
 
   const Favorites = () => {
     const { users, isLoading } = usePeopleFetch();
-    // const [favoriteUsersList, setFavoriteUsersList] = useState([]);
     const [favoriteUsersList, setFavoriteUsersList] = useState(() => {
       if(localStorage.getItem("favoriteUsers")){
-        // setFavoriteUsersList(localStorage.getItem("favoriteUsers"))
         return JSON.parse(localStorage.getItem("favoriteUsers"));
       }
       // if there are no saved users

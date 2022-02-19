@@ -7,7 +7,8 @@ import { useState } from "react";
 
 const Home = () => {
   const [pageNumber, setPageNumber] = useState(1);
-  const { users, isLoading } = usePeopleFetch(pageNumber);
+  const [countriesFilterOn, setCountriesFilterOn] = useState(false);
+  const { users, isLoading} = usePeopleFetch(pageNumber, countriesFilterOn);
 
   return (
     <S.Home>
@@ -17,7 +18,7 @@ const Home = () => {
             PplFinder
           </Text>
         </S.Header>
-        <UserList users={users} isLoading={isLoading} setPageNumber={setPageNumber}/>
+        <UserList users={users} isLoading={isLoading} setPageNumber={setPageNumber} pageNumber = {pageNumber} countriesFilterOn={countriesFilterOn} setCountriesFilterOn={setCountriesFilterOn}/>
       </S.Content>
     </S.Home>
   );

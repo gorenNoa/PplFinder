@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback , useLayoutEffect} from "react";
 import Text from "components/Text";
 import Spinner from "components/Spinner";
 import CheckBox from "components/CheckBox";
@@ -7,7 +7,7 @@ import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 import axios from "axios";
 
-const UserList = ({ users, isLoading, setPageNumber }) => {
+const UserList = ({ users, isLoading, setPageNumber , pageNumber, countriesFilterOn, setCountriesFilterOn}) => {
   const [hoveredUserId, setHoveredUserId] = useState();
   const [usersList, setUsersList] = useState([]);
   const [countriesList, setCountriesList] = useState([]);
@@ -19,8 +19,18 @@ const UserList = ({ users, isLoading, setPageNumber }) => {
     // if there are no saved users
     return [];
   });
-  // const [pageNumber, setPageNumber] = useState(1);
+  // before all the useEffect - set the filter stat
+  useLayoutEffect(() => {
+    if(countriesList.length > 0){
+      setCountriesFilterOn(true);
+    }
+    else{
+      setCountriesFilterOn(false);
+    }
+  }, [countriesList])
+
   const observer = useRef();
+  // find the last user for the infinite scroll
   const lastUserElementRef = useCallback( node => {
     if(isLoading){
       return;
@@ -52,11 +62,18 @@ const UserList = ({ users, isLoading, setPageNumber }) => {
 
   // if there is change in the countriesList - update the userList
   useEffect(() => {
-      axios.get(`https://randomuser.me/api/?results=25&page=1&nat=${countriesList}`)
+      axios.get(`https://randomuser.me/api/?results=25&page=${pageNumber}&nat=${countriesList}`)
       .then((response) => {
-        setUsersList(response.data.results);
+        if(pageNumber > 1){
+          setUsersList([...usersList, ...response.data.results]);
+        }
+        else{
+          setUsersList(response.data.results);
+        }
       });
-    }, [countriesList]);
+    }, [countriesList, pageNumber]);
+
+    
     
   // if there is change in the users (from usePeopleFetch) update the userList
   useEffect(() => {
@@ -85,14 +102,6 @@ const UserList = ({ users, isLoading, setPageNumber }) => {
       return favoriteUsersList.find(user => user.login.uuid === userToCheck.login.uuid);
     }
   };
-  // const loadFavoriteUsers = () => {
-  //   if(localStorage.getItem("favoriteUsers")){
-  //     return JSON.parse(localStorage.getItem("favoriteUsers"));
-  //   }
-  //   // if there are no saved users
-  //   return [];
-  // };
-
   const addToFavorites = (userToAdd) => {
     var newFavoriteList;
     if(!favoriteUsersList.includes(userToAdd)){
@@ -117,9 +126,9 @@ const UserList = ({ users, isLoading, setPageNumber }) => {
       </S.Filters>
       <S.List>
         {usersList.map((user, index) => {
-          // if its the last user in scrolling - return ref to the last user shown
-          // if(users.length === index + 1){
-            {console.log(usersList.length)}
+          // if its the last user in scrolling (usersList.length === index + 1)
+          // return ref to the last user shown
+          // else null
             return (
               <S.User
                 ref={usersList.length === index + 1 ? lastUserElementRef : null}
@@ -147,37 +156,6 @@ const UserList = ({ users, isLoading, setPageNumber }) => {
                 </S.IconButtonWrapper>
               </S.User>
             );
-
-          // }
-          // else{
-          //   return (
-          //     <S.User
-          //       key={index}
-          //       onMouseEnter={() => handleMouseEnter(index)}
-          //       onMouseLeave={handleMouseLeave}
-          //     >
-          //       <S.UserPicture src={user?.picture.large} alt="" />
-          //       <S.UserInfo>
-          //         <Text size="22px" bold>
-          //           {user?.name.title} {user?.name.first} {user?.name.last}
-          //         </Text>
-          //         <Text size="14px">{user?.gender}</Text>
-          //         <Text size="14px">
-          //           {user?.dob.age}
-          //         </Text>
-          //         <Text size="14px">
-          //           {user?.location.city} {user?.location.country}
-          //         </Text>
-          //       </S.UserInfo>
-          //       <S.IconButtonWrapper isVisible={index === hoveredUserId || isUserInFavorite(user)}>
-          //         <IconButton onClick={() => addToFavorites(user)}>
-          //           <FavoriteIcon color="error" />
-          //         </IconButton>
-          //       </S.IconButtonWrapper>
-          //     </S.User>
-          //   );
-          // }
-
         })}
         {isLoading && (
           <S.SpinnerWrapper>
